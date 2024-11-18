@@ -577,48 +577,48 @@ app.post('/add-friend', checkAuthenticated, async (req, res) => {
 
   
 app.post("/api/create-post", (req, res) => {
-    const { userId, text, imgSrc, videoSrc, time, userNamez } = req.body;
-    let videoFileId = null;
-    let imageFileId = null;
+  const { userId, text, imgSrc, videoSrc, time, userNamez } = req.body;
+  let videoFileId = null;
+  let imageFileId = null;
 
-    // Use the appropriate middleware based on the type of file
-    const uploadMiddleware = req.body.video ? videoUpload.single('video') : imageUpload.single('image');
+  // Use the appropriate middleware based on the type of file
+  const uploadMiddleware = req.body.video ? videoUpload.single('video') : imageUpload.single('image');
 
-    uploadMiddleware(req, res, async (err) => {
-        if (err) {
-            return res.status(400).json({ success: false, error: err.message });
-        }
+  uploadMiddleware(req, res, async (err) => {
+    if (err) {
+      console.error("Upload Error:", err);
+      return res.status(400).json({ success: false, error: err.message });
+    }
 
-        // If a video was uploaded
-        if (req.file && req.body.video) {
-            videoFileId = req.file.id;  // Store the GridFS file ID for video (GridFS uses ID for storage)
-        }
+    // If a video was uploaded
+    if (req.file && req.body.video) {
+      videoFileId = req.file.id; // Store the GridFS file ID for video
+    }
 
-        // If an image was uploaded
-        if (req.file && !req.body.video) {
-            imageFileId = req.file.buffer;  // Store the image buffer (or save the image as needed)
-        }
+    // If an image was uploaded
+    if (req.file && !req.body.video) {
+      imageFileId = req.file.buffer; // Store the image buffer (or save as needed)
+    }
 
-        // Prepare the new post object
-        const newPost = new Post({
-            userId,
-            text,
-            imgSrc: imgSrc || imageFileId,  // If image is not uploaded, use provided imgSrc
-            videoSrc: videoFileId || videoSrc,  // If video is not uploaded, use provided videoSrc
-            time,
-            userNamez,
-        });
-
-        try {
-            // Save the new post to the database
-            const savedPost = await newPost.save();
-            res.json({ success: true, post: savedPost });
-        } catch (error) {
-            console.error("Failed to save post:", error);
-            res.status(500).json({ success: false, error: "Failed to save post." });
-        }
+    const newPost = new Post({
+      userId,
+      text,
+      imgSrc: imgSrc || imageFileId,
+      videoSrc: videoFileId || videoSrc,
+      time,
+      userNamez,
     });
+
+    try {
+      const savedPost = await newPost.save();
+      res.json({ success: true, post: savedPost });
+    } catch (error) {
+      console.error("Failed to save post:", error);
+      res.status(500).json({ success: false, error: "Failed to save post." });
+    }
+  });
 });
+
 
   
   
