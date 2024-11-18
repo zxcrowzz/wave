@@ -552,7 +552,7 @@ btnsend.addEventListener("click", async function () {
 
   // Send the post data to the backend with FormData
   try {
-    const response = await fetch("/upload-video", {
+    const response = await fetch("/api/create-post", {
       method: "POST",
       body: formData, // Send the FormData containing the image/video/text to backend
     });
