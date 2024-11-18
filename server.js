@@ -38,6 +38,7 @@ const ObjectId = require('mongoose').Types.ObjectId;
 const { v4: uuidV4 } = require('uuid');
 const Post = require('./models/post');
 const conn = mongoose.connection;
+const GridFSBucket = require('mongodb').GridFSBucket;
 let gfs;
 conn.once('open', () => {
   gfs = new GridFSBucket(conn.db, { bucketName: 'videos' });
