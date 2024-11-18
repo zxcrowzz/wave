@@ -456,13 +456,13 @@ btnsend.addEventListener("click", async function () {
   // Get the text from the input field
   const text = document.getElementById("postInputContainer").value;
 
-  // Get the image URL from the preview (if an image is uploaded)
+  // Get the image file from the preview (if an image is uploaded)
   const pfppostContainer1 = document.getElementById("pfppostContainer1");
-  const imgSrc = pfppostContainer1.src && pfppostContainer1.style.display !== "none" ? pfppostContainer1.src : null;
+  const imgFile = pfppostContainer1.src && pfppostContainer1.style.display !== "none" ? pfppostContainer1 : null;
 
   // Get the video file from the preview (if a video is uploaded)
   const videoContainer = document.getElementById("videoPreviewContainer");
-  const videoFile = videoContainer.querySelector("video") ? videoContainer.querySelector("video").src : null;
+  const videoFile = videoContainer.querySelector("video") ? videoContainer.querySelector("video") : null;
 
   // Get the user's profile picture and name
   const elementPF = document.getElementById("pfpIMG");
@@ -479,16 +479,16 @@ btnsend.addEventListener("click", async function () {
   formData.append("time", time);
   formData.append("userNamez", name);
 
-  // If image is uploaded, append it to the FormData
-  if (imgSrc) {
-    const img = document.getElementById("pfppostContainer1"); // or any file input field
-    formData.append("image", img.src); // Assuming you get the image as a file object.
+  // If image is uploaded, append it as a file to FormData
+  if (imgFile && imgFile.src) {
+    const imgBlob = await fetch(imgFile.src).then(res => res.blob()); // Convert image src to Blob
+    formData.append("image", imgBlob, "image.jpg"); // Append the Blob (image file)
   }
 
-  // If video is uploaded, append it to the FormData
+  // If video is uploaded, append it as a file to FormData
   if (videoFile) {
-    const video = document.getElementById("videoPreviewContainer");
-    formData.append("video", video.src); // Assuming you get the video file as an object
+    const videoBlob = await fetch(videoFile.src).then(res => res.blob()); // Convert video src to Blob
+    formData.append("video", videoBlob, "video.mp4"); // Append the Blob (video file)
   }
 
   // Create new post container elements
@@ -522,15 +522,15 @@ btnsend.addEventListener("click", async function () {
   msgElement.setAttribute("id", "msglz");
 
   // Set the imgSrc for the new image if an image was selected
-  if (imgSrc) {
-    newImg.src = imgSrc;
+  if (imgFile && imgFile.src) {
+    newImg.src = imgFile.src;
     newImg.setAttribute("id", "postPicture1");
     newPost.appendChild(newImg);
   }
 
   // Set the videoSrc for the new video if a video was selected
   if (videoFile) {
-    newVideo.src = videoFile;
+    newVideo.src = videoFile.src;
     newVideo.controls = true;
     newVideo.setAttribute("id", "postVideo");
     newVideo.style.maxWidth = "100%";
