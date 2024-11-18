@@ -40,7 +40,8 @@ const Post = require('./models/post');
 
 const conn = mongoose.createConnection(process.env.MONGODB_URI);
 let gfs;
-const GridFSStorage = require('multer-gridfs-storage');
+const GridFSStorage = require('multer-gridfs-storage').GridFSStorage;
+
 
 //we need a key and cert to run https
 //we generated them with mkcert
