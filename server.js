@@ -37,19 +37,15 @@ app.use(express.static(__dirname))
 const ObjectId = require('mongoose').Types.ObjectId;
 const { v4: uuidV4 } = require('uuid');
 const Post = require('./models/post');
-const Grid = require('gridfs-stream');
+
 const conn = mongoose.createConnection(process.env.MONGODB_URI);
 let gfs;
 const GridFSStorage = require('multer-gridfs-storage');
-conn.once('open', () => {
-  gfs = Grid(conn.db, mongoose.mongo);
-  gfs.collection('uploads');
-});
+
 //we need a key and cert to run https
 //we generated them with mkcert
 // $ mkcert create-ca
 // $ mkcert create-cert
-
 let connectedClients = 0;
 //we changed our express setup so we can use https
 //pass the key and cert to createServer on https
