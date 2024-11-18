@@ -40,7 +40,7 @@ const Post = require('./models/post');
 const Grid = require('gridfs-stream');
 const conn = mongoose.createConnection(process.env.MONGODB_URI);
 let gfs;
-
+const GridFSStorage = require('multer-gridfs-storage');
 conn.once('open', () => {
   gfs = Grid(conn.db, mongoose.mongo);
   gfs.collection('uploads');
