@@ -44,8 +44,15 @@ conn.once('open', () => {
   gfs = new GridFSBucket(conn.db, { bucketName: 'videos' });
   console.log("GridFSBucket initialized");
 });
-const storage = multer.memoryStorage();  
-const upload = multer({ storage: storage });
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/');  // Directory where files will be saved
+  },
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));  // Name of the file, using timestamp for uniqueness
+  }
+});
 
 
 //we need a key and cert to run https
@@ -576,49 +583,36 @@ app.post('/add-friend', checkAuthenticated, async (req, res) => {
 });
 
   
-app.post("/api/create-post", (req, res) => {
-  const { userId, text, imgSrc, videoSrc, time, userNamez } = req.body;
-  let videoFileId = null;
-  let imageFileId = null;
+const upload = multer({ storage: storage });
 
-  // Use the appropriate middleware based on the type of file
-  const uploadMiddleware = req.body.video ? videoUpload.single('video') : imageUpload.single('image');
+// POST route to handle post creation with image upload
+app.post('/api/create-post', upload.single('image'), (req, res) => {
+  // Image file is available as req.file
+  // Form data fields are available as req.body
 
-  uploadMiddleware(req, res, async (err) => {
+  const { text, userId, userNamez, time } = req.body;
+  const imagePath = req.file ? req.file.path : null;  // Save the path of the uploaded image
+  const videoFile = req.body.video ? req.body.video : null;
+
+  // Now you can save the post to the database, including the image path and other data
+  const newPost = {
+    text: text,
+    userId: userId,
+    userNamez: userNamez,
+    time: time,
+    imagePath: imagePath,
+    videoFile: videoFile,
+  };
+
+  // Save the newPost object to your database (MongoDB or whichever you're using)
+  // Assuming you're using mongoose for MongoDB:
+  Post.create(newPost, (err, savedPost) => {
     if (err) {
-      console.error("Upload Error:", err);
-      return res.status(400).json({ success: false, error: err.message });
+      return res.status(500).json({ message: 'Failed to save post', error: err });
     }
-
-    // If a video was uploaded
-    if (req.file && req.body.video) {
-      videoFileId = req.file.id; // Store the GridFS file ID for video
-    }
-
-    // If an image was uploaded
-    if (req.file && !req.body.video) {
-      imageFileId = req.file.buffer; // Store the image buffer (or save as needed)
-    }
-
-    const newPost = new Post({
-      userId,
-      text,
-      imgSrc: imgSrc || imageFileId,
-      videoSrc: videoFileId || videoSrc,
-      time,
-      userNamez,
-    });
-
-    try {
-      const savedPost = await newPost.save();
-      res.json({ success: true, post: savedPost });
-    } catch (error) {
-      console.error("Failed to save post:", error);
-      res.status(500).json({ success: false, error: "Failed to save post." });
-    }
+    res.status(200).json(savedPost);  // Send back the saved post to the client
   });
 });
-
 
   
   
