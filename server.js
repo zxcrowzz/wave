@@ -573,36 +573,7 @@ app.post('/add-friend', checkAuthenticated, async (req, res) => {
         res.status(500).send('Server error.');
     }
 });
-const imageStorage = multer.memoryStorage();
-const imageUpload = multer({
-  storage: imageStorage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only images are allowed'));
-    }
-  }
-});
 
-const videoStorage = new GridFSStorage({
-    url: 'mongodb+srv://kingcod163:Saggytits101@cluster0.rcyom.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0',
-    file: (req, file) => ({
-      bucketName: 'videos',
-      filename: `${Date.now()}_${file.originalname}`,
-    }),
-  });
-  
-  const videoUpload = multer({
-    : videoStorage,
-    fileFilter: (req, file, cb) => {
-      if (file.mimetype.startsWith('video/')) {
-        cb(null, true);
-      } else {
-        cb(new Error('Only video files are allowed!'));
-      }
-    }
-  });
   
 app.post("/api/create-post", (req, res) => {
     const { userId, text, imgSrc, videoSrc, time, userNamez } = req.body;
