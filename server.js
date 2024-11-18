@@ -824,17 +824,7 @@ app.get('/search-users', async (req, res) => {
 
 
 
-const storage = multer.memoryStorage();
-const upload = multer({ 
-  storage,
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only images are allowed'));
-    }
-  }
-});
+
 app.get('/api/profile-picture', async (req, res) => {
 
 
